@@ -1,0 +1,225 @@
+﻿@*@using Application.Services.PdfGenerator.Exportacao
+@using RazorEngine.Templating
+@inherits TemplateBase<ExportacaoData>*@
+@* Activate for intellisense *@
+
+@using System.Globalization
+
+@{
+    var date = DateTime.Now.ToString("MMMM d, yyyy", CultureInfo.CreateSpecificCulture("en-US"));
+    var nfi = new NumberFormatInfo { NumberDecimalSeparator = ".", NumberGroupSeparator = "," };
+
+    decimal netWeightTotalSum = Model.Products.Sum(x => x.NetWeightTotal.Value);
+    decimal grossWeightTotalSum = Model.Products.Sum(x => x.GrossWeightTotal.Value);
+    decimal valueTotalSum = Model.Products.Sum(x => x.VlTotal);
+    decimal unitTotalSum = Model.Products.Sum(x => x.QtPedida);
+
+    string condPag;
+    if (Model.CondPag == "LIVRE DEBITO")
+    {
+        condPag = "Advance payment";
+    }
+    else
+    {
+        condPag = Model.CondPag + " Days";
+    }
+    if (Model.CondPag.Contains("dias", StringComparison.CurrentCultureIgnoreCase))
+    {
+        condPag = Model.CondPag.Replace("dias", "Days", StringComparison.CurrentCultureIgnoreCase);
+    }
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <link rel="stylesheet" href="invoiceStyle.css" type="text/css" media="all" />
+</head>
+<body>
+    <page size="A4">
+        <main>
+            <div>
+                <div><img src="logo.jpg" alt="logo" /></div>
+                <div class="address">
+                    <div>
+                        <h3>SHIPPER/EXPORTER:</h3>
+                        <p>
+                            Sheep Ind. e Comercio de Produtos Agropecuarios LTDA. <br />
+                            Rua Gal Walter da Costa Reis, 165 Curitiba -PR- Brasil <br />
+                            Cep: 81.290-260 CNPJ: 82.676.420/0001-57
+                        </p>
+                    </div>
+                    <span>Country of origin: Brazil</span>
+                </div>
+            </div>
+            <h2 class="invoice-title">
+                COMMERCIAL INVOICE Nº:
+                @Model.InvoiceCounter.ToString().PadLeft(3, '0')/@DateTime.Now.Year.ToString()
+            </h2>
+
+            <div class="importer">
+                <div>
+                    <table>
+                        <tr>
+                            <th>IMPORTER:</th>
+                            <td>@Model.Cliente</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>NIT Nº: @Model.Nit</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>@Model.Endereco @Model.Complemento</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>@Model.Cidade - @Model.Pais</td>
+                        </tr>
+                    </table>
+                </div>
+                <div>
+                    <table>
+                        <tr>
+                            <th>CONSIGNEE:</th>
+                            <td>@Model.Cliente</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>NIT Nº: @Model.Nit</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>@Model.Endereco @Model.Complemento</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>@Model.Cidade - @Model.Pais</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <h3 id="date">Date: @date</h3>
+
+            <div class="details">
+
+                <table>
+                    <tr style="font-weight: bold">
+                        <td>PAYMENT:</td>
+                    </tr>
+                    <tr>
+                        <td>PAYMENT TYPE</td>
+                        <td>@condPag</td>
+                    </tr>
+                    <tr>
+                        <td>CHARGES</td>
+                        <td>US$ 0.00</td>
+                    </tr>
+                    <tr>
+                        <td>TOTAL AMOUNT</td>
+                        <td>US$ @valueTotalSum.ToString("#,##0.00", nfi)</td>
+                    </tr>
+                </table>
+
+                <table>
+                    <tr>
+                        <td class="blank-row"></td>
+                    </tr>
+                    <tr>
+                        <td>LOADING</td>
+                        <td>@Model.CidadeEmbarque - @Model.EstadoEmbarque</td>
+                    </tr>
+                    <tr>
+                        <td>DISCHARGE</td>
+                        <td>@Model.Cidade/ @Model.Pais</td>
+                    </tr>
+                    <tr>
+                        <td>INCOTERMS(2000)</td>
+                        <td>@Model.Incoterm</td>
+                    </tr>
+                </table>
+
+                <table>
+
+                    <tr>
+                        <td>TOTAL AMOUNT</td>
+                        <td>US$ @valueTotalSum.ToString("#,##0.00", nfi)</td>
+                    </tr>
+                    <tr>
+                        <td>QUANTITY OF PALLETS</td>
+                        <td>@Model.PalletsNumber</td>
+                    </tr>
+                    <tr>
+                        <td>NET WEIGHT</td>
+                        <td>@netWeightTotalSum.ToString("#,##0.00", nfi) kg</td>
+                    </tr>
+                    <tr>
+                        <td>GROSS WEIGHT</td>
+                        <td>@grossWeightTotalSum.ToString("#,##0.00", nfi) kg</td>
+                    </tr>
+                </table>
+            </div>
+
+            <table class="general-table">
+
+                <tr>
+                    <th>MARKS & NUMBERS</th>
+                    <th>DESCRIPTION OF PRODUCTS</th>
+                    <th>NCM/HS</th>
+                    <th colspan="2">QUANTITY</th>
+                    <th>PRICE (USD)</th>
+                    <th>TOTAL AMOUNT (USD)</th>
+                </tr>
+
+                @{
+                    foreach (var product in Model.Products)
+                    {
+                        <tr>
+                            <td>@product.CdItem</td>
+                            <td>@product.Descricao</td>
+                            <td>@product.Ncm</td>
+                            <td>@product.QtPedida</td>
+                            <td>Boxes</td>
+                            <td>@product.VlUnitario.Value.ToString("#,##0.00", nfi)</td>
+                            <td>@product.VlTotal.ToString("#,##0.00", nfi)</td>
+                        </tr>
+                    }
+                }
+
+                <tr style="border: none">
+                    <td style="border: none"></td>
+                    <td style="border: none"></td>
+                    <td style="border: none"></td>
+                    <td style="border: none"></td>
+                    <td style="border: none"></td>
+                    <td style="border: none"></td>
+                    <td style="border: none"></td>
+                </tr>
+
+                <tr style="border-spacing: 10px">
+                    <td></td>
+                    <td></td>
+                    <td class="total" style="font-weight: bold">TOTAL UNIT</td>
+                    <td class="boxes">@unitTotalSum.ToString("#,##0", nfi)</td>
+                    <td class="boxes">BOXES</td>
+                    <td class="total" style="font-weight: bold">TOTAL</td>
+                    <td class="total">@valueTotalSum.ToString("#,##0.00", nfi)</td>
+                </tr>
+            </table>
+            <!--
+            <div class="signature-container">
+
+                <div class="signature">
+                  <strong id="sig-sheep">SHEEP</strong><br>
+                  <span id="sig-desc">Ind. E Comercio de Produtos Agropecuarios LTDA</span><br>
+                  <div>
+                    <span id="sig-line">_________________________________________</span>
+                  </div>
+                </div>
+            </div>
+            -->
+        </main>
+    </page>
+</body>
+</html>

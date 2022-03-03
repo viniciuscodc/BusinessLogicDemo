@@ -1,0 +1,160 @@
+﻿@*@using RazorEngine.Templating
+    @using Application.PdfGenerator.Exportacao
+    @inherits TemplateBase<CorreioApiModel>*@
+@* Activate for intellisense *@
+@using System.IO;
+
+<!DOCTYPE html>
+<html>
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+    <tr>
+        <td align="center">
+            <body>
+
+                <table width="800" border="0" bgcolor="#f4b424" style="background-color: #f4b424; padding: 25px 0" cellspacing="0" cellpadding="0">
+                    <tr>
+                        <td align="center">
+                            <img width="200" src=cid:logoBrancoId alt="logo" />
+                        </td>
+                    </tr>
+                </table>
+
+                <main>
+
+                    <table width="770">
+                        <tr style="padding: 10px 0;">
+                            <td>
+                                <span>Olá,</span>
+                            </td>
+                        </tr>
+                        <tr style="padding-bottom: 20px;">
+                            <td>
+                                <span>
+                                    Seguem as últimas informações atualizadas do rastreamento da sua
+                                    encomenda:
+                                </span>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <table width="700"
+                           style="
+                          border-collapse: collapse;
+                          border-top: 1px solid #383838;
+                          text-align: left;
+                        ">
+                        <tr style="padding: 15px; border: 1px solid #444; text-align: left">
+                            <th style="padding: 15px; border: 1px solid #909090; color: #404040">
+                                Data
+                            </th>
+                            <th style="padding: 15px; border: 1px solid #909090; color: #404040">
+                                Local
+                            </th>
+                            <th style="padding: 15px; border: 1px solid #909090; color: #404040">
+                                Situação
+                            </th>
+                        </tr>
+                        @{
+                            foreach (var evento in Model.Objetos[0].Eventos)
+                            {
+                                string origem;
+
+                                var data = DateTime.Parse(@evento.DtHrCriado);
+
+                                if (evento.UnidadeDestino != null)
+                                {
+                                    origem = $"de {evento.Unidade.Tipo} - {evento.Unidade.Endereco.Cidade} / {evento.Unidade.Endereco.Uf}";
+                                }
+                                else
+                                {
+                                    origem = $"{evento.Unidade.Tipo} - {evento.Unidade.Endereco.Cidade} / {evento.Unidade.Endereco.Uf}";
+                                }
+
+                                <tr>
+                                    <td style="padding: 15px; border: 1px solid #909090; text-align: center;">@data.ToShortDateString() @data.ToString("HH:mm")</td>
+                                    <td style="padding: 15px; border: 1px solid #909090;">@origem</td>
+                                    <td style="padding: 15px; border: 1px solid #909090;">@evento.Descricao</td>
+                                </tr>
+                            }
+                        }
+                    </table>
+
+                    <table width="770">
+                        <tr style="padding-top: 20px; padding-bottom: 10px;">
+                            <td>
+                                <span>Seu código de rastreamento é: <strong>LB299976074HK</strong></span>
+                            </td>
+                        </tr>
+                        <tr style="padding-bottom: 20px;">
+                            <td>
+                                <span>O rastreio também pode ser acompanhado pelo site dos</span>
+                                <a href="https://rastreamento.correios.com.br/app/index.php">correios</a>
+                            </td>
+                        </tr>
+                    </table>
+
+                </main>
+
+                <table width="800" border="0" bgcolor="#e8e8e8" style="background-color: #e8e8e8;" cellspacing="0" cellpadding="0">
+                    <tr style="padding-top: 18px;">
+                        <td align="center">
+                            <img width="200" src=cid:logoId alt="logo" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 15px 0;" align="center">
+                            <p style="color: #747474">
+                                Organnact - Sheep Industria e Comercio de Produtos Agropecuarios
+                                LTDA <br />
+                                82.676.420/0001-57
+                            </p>
+                        </td>
+                    </tr>
+                    <tr style="display: block;">
+                        <td>
+                            <table>
+                                    <tr>
+                                        <td style="
+                                    color: #747474;
+                                    font-weight: bold;
+                                    padding-bottom: 4px;
+                                  ">
+                                            Siga nas redes sociais:
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <a style="text-decoration: inherit; color: inherit"
+                                               href="https://www.facebook.com/Organnact/">
+                                                <img src=cid:instagramId alt="instagram" />
+                                            </a>
+                                            <a style="text-decoration: inherit; color: inherit"
+                                               href="https://www.instagram.com/organnact/">
+                                                <img src=cid:facebookId alt="facebook" />
+                                            </a>
+                                            <a style="text-decoration: inherit; color: inherit"
+                                               href="https://www.youtube.com/channel/UCzEXGJt8_7-35JmJtNdajgQ">
+                                                <img src=cid:youtubeId alt="youtube" />
+                                            </a>
+                                        </td>
+                                    </tr>
+                            </table>
+                        </td>
+                        @*<td>
+                            <img style="margin-right: 10px"
+                                 src=cid:telefoneId
+                                 alt="telefone" />
+                        </td>
+                        <td>
+                            <span style="white-space: nowrap; color: #747474; font-weight: bold; display: block; margin-bottom: 3px;">Telefone para atendimento:</span>
+                            <span style="color: #747474;">(41) 2169-0400</span>
+                            <span style="color: #747474">falecom@organnact.com.br</span>
+                        </td>*@
+                    </tr>
+                </table>
+        </td>
+    </tr>
+    </body>
+</table>
+
+</html>
